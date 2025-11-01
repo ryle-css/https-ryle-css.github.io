@@ -7,15 +7,21 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages action
-        uses: actions/configure-pages@v3
+      - name: Configure Pages
+        # bump to a newer configure-pages that avoids deprecated artifact actions
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v1
+        # use the newer upload-pages-artifact if available (resolves internal upload-artifact v3 usage)
+        uses: actions/upload-pages-artifact@v2
         with:
           path: .
 
@@ -24,4 +30,6 @@ jobs:
 
 # Notes:
 # - This workflow runs on push to main and deploys the repository root to GitHub Pages.
-# - After first push, go to repository Settings → Pages and select the Pages deployment that the workflow creates.
+# - If you intend to publish a user site at https://ryle-css.github.io, make sure the repository
+#   name matches `ryle-css.github.io` (your repo currently has `https-` prefixed). If you prefer
+#   a project site, the site will be published at https://ryle-css.github.io/<repo-name>/.
