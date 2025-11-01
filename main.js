@@ -16,6 +16,7 @@
 
   let confettiCtx, particles = [], raf;
   let isMuted = false;
+  let codePassed = false;
 
   function resizeCanvas(){
     if(!canvas) return;
@@ -88,10 +89,83 @@
     balloons.classList.add('hidden');
     balloons.setAttribute('aria-hidden','true');
     reset.setAttribute('aria-hidden','true');
+    if(btn) btn.classList.add('hidden');
     // remove flicker
     cake.classList.remove('flicker');
     stopConfetti();
+    // hide stickmen if present
+    hideStickmen();
   }
+
+  // --- Disco party mode ---
+  let discoCtx = null, discoOsc = null, discoGain = null, discoInterval = null;
+  let discoActive = false;
+  let textLoopInterval = null;
+  const discoPhrases = ["yey!","HAHAHA!","let's dance!","come on!"];
+  function enterDisco(){
+    if(discoActive) return;
+    document.body.classList.add('disco');
+    discoActive = true;
+    createDiscoOverlay();
+    showStickmen();
+    startTextLoop();
+    if(isMuted) return; // visual-only if muted
+    try{
+      discoCtx = new (window.AudioContext || window.webkitAudioContext)();
+      discoOsc = discoCtx.createOscillator();
+      discoGain = discoCtx.createGain();
+      discoOsc.type = 'sawtooth';
+      discoOsc.frequency.setValueAtTime(110, discoCtx.currentTime);
+      discoOsc.connect(discoGain);
+      discoGain.connect(discoCtx.destination);
+      discoGain.gain.setValueAtTime(0.001, discoCtx.currentTime);
+      discoOsc.start();
+      discoInterval = setInterval(()=>{
+        const now = discoCtx.currentTime;
+        discoGain.gain.cancelScheduledValues(now);
+        discoGain.gain.setValueAtTime(0.001, now);
+        discoGain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+        discoGain.gain.linearRampToValueAtTime(0.001, now + 0.22);
+      }, 420);
+    }catch(e){ console.warn('Disco audio not available', e); }
+  }
+  function exitDisco(){
+    if(!discoActive) return;
+    document.body.classList.remove('disco');
+    discoActive = false;
+    removeDiscoOverlay();
+    hideStickmen();
+    stopTextLoop();
+    if(discoInterval) clearInterval(discoInterval);
+    if(discoOsc){ try{ discoOsc.stop(); }catch(e){} discoOsc = null }
+    if(discoCtx){ try{ discoCtx.close(); }catch(e){} discoCtx = null }
+    discoGain = null; discoInterval = null;
+  }
+  function startTextLoop(){
+    stopTextLoop();
+    let idx = 0;
+    textLoopInterval = setInterval(()=>{
+      const txt = discoPhrases[idx % discoPhrases.length];
+      generateAnimatedMessage(txt);
+      idx++;
+    }, 700);
+  }
+  function stopTextLoop(){ if(textLoopInterval){ clearInterval(textLoopInterval); textLoopInterval = null } }
+  // show/hide stickmen
+  const stickmenEl = document.getElementById('stickmen');
+  function showStickmen(){ if(stickmenEl){ stickmenEl.classList.remove('hidden'); stickmenEl.setAttribute('aria-hidden','false'); } }
+  function hideStickmen(){ if(stickmenEl){ stickmenEl.classList.add('hidden'); stickmenEl.setAttribute('aria-hidden','true'); } }
+  // create/remove visual overlay for disco
+  function createDiscoOverlay(){
+    const ov = document.createElement('div'); ov.className = 'disco-overlay';
+    const s1 = document.createElement('div'); s1.className='spot c1';
+    const s2 = document.createElement('div'); s2.className='spot c2';
+    const s3 = document.createElement('div'); s3.className='spot c3';
+    ov.appendChild(s1); ov.appendChild(s2); ov.appendChild(s3);
+    document.body.appendChild(ov);
+    return ov;
+  }
+  function removeDiscoOverlay(){ const ex = document.querySelector('.disco-overlay'); if(ex) ex.remove(); }
 
   // --- Animated floating message generator ---
   function generateAnimatedMessage(text){
@@ -170,7 +244,7 @@
     modal.classList.add('hidden');
   }
 
-  openBtn.addEventListener('click', ()=>{
+  if(openBtn) openBtn.addEventListener('click', ()=>{
     const name = (nameInput.value || '').trim();
     if(name) subtitle.textContent = `Happy Birthday, ${name}!`;
     else subtitle.textContent = 'Happy Birthday!';
@@ -179,12 +253,10 @@
     // open letter first for a nicer experience
     openLetter(name);
   });
-
-  skipBtn.addEventListener('click', ()=>{
+  if(skipBtn) skipBtn.addEventListener('click', ()=>{
     hideModal();
   });
-
-  nameInput.addEventListener('keydown', (e)=>{
+  if(nameInput) nameInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
       openBtn.click();
     }
@@ -192,7 +264,14 @@
 
   window.addEventListener('resize', ()=>{ resizeCanvas(); });
   // Surprise button should open the letter first (then use Open Cake inside letter)
-  btn.addEventListener('click', ()=>{ openLetter(''); });
+  if(btn) btn.addEventListener('click', ()=>{
+    // if disco already active -> stop it
+    if(document.body.classList.contains('disco')){ exitDisco(); return; }
+    // if code was passed and cake is revealed (has flicker), use this button to start disco
+    if(codePassed && cake && cake.classList.contains('flicker')){ enterDisco(); return; }
+    // otherwise, open the letter as before
+    openLetter('');
+  });
 
   // --- Mute toggle ---
   const muteBtn = document.getElementById('muteBtn');
@@ -209,7 +288,7 @@
   }
 
   // remove print/download features per request; wire reset
-  reset.addEventListener('click', ()=>{ resetAll(); });
+  if(reset) reset.addEventListener('click', ()=>{ resetAll(); exitDisco(); });
 
   // initial setup when DOM is ready
   document.addEventListener('DOMContentLoaded', ()=>{
@@ -218,8 +297,66 @@
       canvas.style.height = '100%';
       resizeCanvas();
     }
-    // show modal on first load
-    showModal();
+    // show code gate first; only after correct code will we show the modal
+    const codeGate = document.getElementById('codeGate');
+    const codeDisplay = document.getElementById('codeDisplay');
+    const keys = codeGate ? codeGate.querySelectorAll('.key') : [];
+    let codeVal = '';
+  const secret = '11142006';
+    function updateDisplay(){ codeDisplay.textContent = codeVal || '\u00A0'; }
+    function clearCode(){ codeVal = ''; updateDisplay(); }
+    function backspace(){ codeVal = codeVal.slice(0,-1); updateDisplay(); }
+    function submitCode(){
+      if(codeVal === secret){
+        // correct — hide gate and show the welcome modal so the user can type the name
+        codeGate.classList.add('hidden');
+        // show the existing name modal so they can enter the recipient's name
+        setTimeout(()=>{ showModal(); }, 220);
+      } else {
+        // brief shake/clear to indicate wrong
+        codeDisplay.classList.add('wrong');
+        setTimeout(()=>{ codeDisplay.classList.remove('wrong'); clearCode(); }, 600);
+      }
+    }
+      // hide the primary UI buttons when code is entered
+      function onCodeSuccess(){
+        codePassed = true;
+        if(btn) btn.classList.add('hidden');
+        if(reset) reset.classList.add('hidden');
+      }
+    if(codeGate){
+      updateDisplay();
+      keys.forEach(k=>{
+        k.addEventListener('click', ()=>{
+          const cls = k.className || '';
+          const v = k.textContent.trim();
+          if(cls.indexOf('key-clear')>=0){ clearCode(); return; }
+          if(cls.indexOf('key-back')>=0){ backspace(); return; }
+          if(cls.indexOf('key-enter')>=0){ submitCode(); return; }
+          // numeric key
+          if(codeVal.length < 12 && /\d/.test(v)){
+            codeVal += v;
+            updateDisplay();
+          }
+        })
+      })
+      // allow keyboard input while gate is present
+      window.addEventListener('keydown', (e)=>{
+        if(codeGate.classList.contains('hidden')) return;
+        if(e.key === 'Enter'){ submitCode(); }
+        else if(e.key === 'Backspace'){ backspace(); }
+        else if(e.key === 'Escape'){ clearCode(); }
+        else if(/^[0-9]$/.test(e.key)){ if(codeVal.length<12){ codeVal += e.key; updateDisplay(); } }
+      });
+      // when the code is submitted successfully, hide primary buttons
+      const origSubmit = submitCode;
+      submitCode = function(){
+        if(codeVal === secret){
+          onCodeSuccess();
+        }
+        origSubmit();
+      }
+    }
   });
   
   // --- Letter handlers ---
@@ -290,7 +427,7 @@
     });
   }
 
-  openCakeBtn.addEventListener('click', ()=>{
+  if(openCakeBtn) openCakeBtn.addEventListener('click', ()=>{
     // play melody, messages, then reveal cake
     playMelody();
     // use name if present in sign
@@ -302,8 +439,13 @@
     setTimeout(()=>{
       closeLetter();
       reveal();
+      // after reveal, show Surprise and Reset controls so user can start disco
+      setTimeout(()=>{
+        if(btn) btn.classList.remove('hidden');
+        if(reset) reset.classList.remove('hidden');
+      }, 600);
     }, 900);
   });
 
-  closeLetterBtn.addEventListener('click', ()=>{ closeLetter(); });
+  if(closeLetterBtn) closeLetterBtn.addEventListener('click', ()=>{ closeLetter(); });
 })();

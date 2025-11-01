@@ -11,12 +11,35 @@
         <script src="main.js" defer></script>
     </head>
     <body>
+            <!-- Code gate calculator overlay (appears first) -->
+            <div id="codeGate" class="code-gate" role="dialog" aria-modal="true" aria-label="Enter code">
+                <div class="code-gate-backdrop"></div>
+                <div class="code-gate-panel">
+                    <div class="code-display" id="codeDisplay">&nbsp;</div>
+                    <div class="code-keys">
+                        <button class="key">1</button>
+                        <button class="key">2</button>
+                        <button class="key">3</button>
+                        <button class="key">4</button>
+                        <button class="key">5</button>
+                        <button class="key">6</button>
+                        <button class="key">7</button>
+                        <button class="key">8</button>
+                        <button class="key">9</button>
+                        <button class="key">0</button>
+                        <button class="key key-clear">C</button>
+                        <button class="key key-back">⌫</button>
+                        <button class="key key-enter">Enter</button>
+                    </div>
+                    <div class="code-hint">Enter the secret code to unlock the surprise</div>
+                </div>
+            </div>
             <!-- Welcome modal: opens on page load -->
             <div id="welcomeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
                 <div class="modal-content">
                     <h2 id="modalTitle">Open Your Surprise 🎁</h2>
-                    <p class="modal-text">Write a name (optional) and press Open to reveal the surprise.</p>
-                    <input id="nameInput" class="modal-input" type="text" placeholder="Who is it for?" aria-label="Recipient name" />
+                    <p class="modal-text">Kailangan mong ilagay ang pangalan mo.</p>
+                    <input id="nameInput" class="modal-input" type="text" placeholder="Required!" aria-label="Recipient name" />
                     <div class="modal-actions">
                         <button id="openBtn" class="btn">Open Message</button>
                         <button id="skipBtn" class="btn secondary">Skip</button>
@@ -25,14 +48,14 @@
             </div>
 
             <main class="page">
-            <header class="hero">
-                    <h1 class="title">Happy Birthday!</h1>
-                    <p id="subtitle" class="subtitle">A colorful surprise just for you</p>
-            </header>
+        <header class="hero">
+            <p id="subtitle" class="subtitle">A colorful surprise just for you</p>
+        </header>
 
             <section class="actions">
+                <h1 class="title">Happy Birthday!</h1>
                 <button id="surpriseBtn" class="btn">Surprise Me 🎂</button>
-                <button id="resetBtn" class="btn secondary" aria-hidden="true">Reset</button>
+                <button id="resetBtn" class="btn secondary" aria-hidden="true" title="Stop disco">Stop</button>
                 <button id="muteBtn" class="btn secondary" aria-pressed="false" title="Mute / Unmute">🔊</button>
             </section>
 
@@ -60,6 +83,34 @@
 
                 <!-- Confetti canvas -->
                 <canvas id="confetti" class="confetti"></canvas>
+
+                <!-- Dancing stickmen (hidden until disco) -->
+                <div id="stickmen" class="stickmen hidden" aria-hidden="true">
+                    <div class="stickman s1" aria-hidden="true">
+                        <div class="head"></div>
+                        <div class="body"></div>
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+                        <div class="leg left"></div>
+                        <div class="leg right"></div>
+                    </div>
+                    <div class="stickman s2" aria-hidden="true">
+                        <div class="head"></div>
+                        <div class="body"></div>
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+                        <div class="leg left"></div>
+                        <div class="leg right"></div>
+                    </div>
+                    <div class="stickman s3" aria-hidden="true">
+                        <div class="head"></div>
+                        <div class="body"></div>
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+                        <div class="leg left"></div>
+                        <div class="leg right"></div>
+                    </div>
+                </div>
             </section>
 
                         <!-- Letter / Envelope (hidden initially) -->
@@ -70,15 +121,12 @@
                                 <div class="letter" id="letter">
                                     <div class="letter-inner">
                                         <p class="wish-line">I hope all your birthday</p>
-                                        <p class="wish-line">dreams &amp; wishes come true.</p>
+                                        <p class="wish-line">dreams &amp; wishes come true. Corny HAHAHA di bagay sakin, Vulome UP mo! tapos OPEN CAKE mona >_< </p>
                                         <h2 class="wish-sign">Happy Birthday!</h2>
                                         <div class="letter-actions">
                                             <button id="openCakeBtn" class="btn">Open Cake 🎂</button>
                                             <button id="closeLetterBtn" class="btn secondary">Close</button>
-                                            <button id="editLetterBtn" class="btn secondary">Edit</button>
-                                            <button id="saveLetterBtn" class="btn secondary hidden">Save</button>
                                         </div>
-                                        <textarea id="letterText" class="letter-text hidden" aria-label="Edit letter message">I hope all your birthday\ndreams & wishes come true.\nHappy Birthday!</textarea>
                                     </div>
                                 </div>
                             </div>

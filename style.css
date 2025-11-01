@@ -106,16 +106,138 @@ body{
 .envelope .flap{position:absolute;left:0;right:0;top:-2px;height:120px;background:linear-gradient(180deg,#ffd9b6,#ffbdbd);clip-path:polygon(0 0,50% 100%,100% 0);transform-origin:50% 0;transition:transform .7s cubic-bezier(.2,.9,.28,1);z-index:5}
 .envelope.open .flap{transform:rotateX(180deg) translateY(-36px);z-index:2}
 
-.envelope .letter{position:absolute;left:14px;right:14px;top:26px;height:220px;background:white;border-radius:6px;padding:20px 18px;transform:translateY(8px);box-shadow:0 6px 18px rgba(0,0,0,0.06);overflow:auto;transition:transform .7s ease, opacity .5s ease;z-index:6}
+.envelope .letter{position:absolute;left:12px;right:12px;top:18px;height:260px;background:white;border-radius:6px;padding:14px 16px;transform:translateY(8px);box-shadow:0 6px 18px rgba(0,0,0,0.06);overflow:auto;transition:transform .7s ease, opacity .5s ease;z-index:6}
 .envelope.closed .letter{transform:translateY(60%);opacity:0}
 .envelope.open .letter{transform:translateY(-8px);opacity:1}
 
-.letter-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center}
-.wish-line{margin:0;font-weight:600;font-size:1rem;line-height:1.35;color:#444;word-break:break-word}
-.wish-sign{font-family: 'Great Vibes', cursive, 'Brush Script MT', serif;margin-top:10px;font-size:1.9rem;color:#111}
+.letter-inner{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:100%;text-align:center;padding-top:6px}
+.wish-line{margin:0;font-weight:600;font-size:0.95rem;line-height:1.25;color:#444;word-break:break-word}
+.wish-sign{font-family: 'Great Vibes', cursive, 'Brush Script MT', serif;margin-top:8px;font-size:1.6rem;color:#111}
+
+/* textarea inside letter editor */
+.letter-text{width:100%;height:96px;margin-top:10px;border-radius:6px;border:1px solid #eee;padding:8px;font-size:0.95rem}
 .letter-actions{margin-top:14px;display:flex;gap:10px}
 
 .letter-wrap.hidden{display:none}
+
+/* Code gate (calculator overlay) */
+.code-gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1600}
+.code-gate-backdrop{position:absolute;inset:0;background:rgba(10,10,12,0.55)}
+.code-gate-panel{position:relative;width:320px;background:linear-gradient(180deg,#fff,#fff7);padding:18px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.32);text-align:center}
+.code-display{height:48px;border-radius:8px;background:#f6f6f8;border:1px solid #eee;font-size:1.3rem;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-weight:700;letter-spacing:2px}
+.code-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.code-keys .key{padding:10px 8px;border-radius:8px;border:none;background:linear-gradient(90deg,#ffd9b6,#ffbdbd);cursor:pointer;font-size:1.05rem;box-shadow:0 6px 14px rgba(0,0,0,0.08)}
+.code-keys .key-clear{background:linear-gradient(90deg,#f2f2f2,#e9e9ef);color:#333}
+.code-keys .key-back{background:linear-gradient(90deg,#f2f2f2,#e9e9ef)}
+.code-keys .key-enter{grid-column:1 / -1;background:linear-gradient(90deg,#6bd1ff,#6bffb8);color:#fff}
+.code-hint{margin-top:10px;color:#666;font-size:0.9rem}
+
+.code-display.wrong{animation:shake 600ms cubic-bezier(.36,.07,.19,.97);} 
+@keyframes shake{0%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}100%{transform:translateX(0)}}
+
+/* Disco mode visuals */
+body.disco{animation:discoBg 6s linear infinite;background: linear-gradient(90deg,#ff9a9e,#fecfef,#84fab0,#8fd3f4);background-size:400% 400%}
+@keyframes discoBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.disco .page{filter: hue-rotate(30deg) saturate(1.2) contrast(1.05);}
+.disco-overlay{position:fixed;inset:0;pointer-events:none;mix-blend-mode:screen;z-index:1550}
+.disco-overlay .spot{position:absolute;width:260px;height:260px;border-radius:50%;filter:blur(40px);opacity:0.9;animation:spin 8s linear infinite}
+.disco-overlay .spot.c1{left:10%;top:10%;background:radial-gradient(circle,#ff6b6b,transparent)}
+.disco-overlay .spot.c2{right:8%;top:20%;background:radial-gradient(circle,#6bd1ff,transparent);animation-duration:6s}
+.disco-overlay .spot.c3{left:30%;bottom:12%;background:radial-gradient(circle,#6bffb8,transparent);animation-duration:10s}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+/* Text dance animations for title and footer during disco */
+@keyframes textDance{
+  0%{transform:translateY(0) rotate(0) scale(1)}
+  25%{transform:translateY(-6px) rotate(-2deg) scale(1.03)}
+  50%{transform:translateY(0) rotate(0) scale(1)}
+  75%{transform:translateY(-4px) rotate(2deg) scale(1.02)}
+  100%{transform:translateY(0) rotate(0) scale(1)}
+}
+.disco .title{
+  animation: textDance 900ms ease-in-out infinite;
+}
+.disco .foot{
+  animation: textDance 1200ms ease-in-out infinite;
+}
+
+/* Make primary buttons dance during disco */
+@keyframes buttonDance{
+  0%{transform:translateY(0) rotate(0deg)}
+  25%{transform:translateY(-6px) rotate(-3deg)}
+  50%{transform:translateY(0) rotate(0deg)}
+  75%{transform:translateY(-4px) rotate(3deg)}
+ 100%{transform:translateY(0) rotate(0deg)}
+}
+.disco #surpriseBtn, .disco #resetBtn, .disco #muteBtn{
+  animation: buttonDance 900ms ease-in-out infinite;
+  transform-origin: center bottom;
+  box-shadow:0 10px 24px rgba(0,0,0,0.16);
+}
+
+/* Cake dance and candle sway during disco */
+@keyframes cakeDance{
+  0%{transform:translateY(0) rotate(0deg)}
+  20%{transform:translateY(-10px) rotate(-4deg)}
+  40%{transform:translateY(0) rotate(-1deg)}
+  60%{transform:translateY(-8px) rotate(3deg)}
+  80%{transform:translateY(0) rotate(1deg)}
+ 100%{transform:translateY(0) rotate(0deg)}
+}
+@keyframes cakeGlow{
+  0%{box-shadow:0 12px 28px rgba(0,0,0,0.12)}
+  45%{box-shadow:0 18px 46px rgba(255,200,110,0.18), 0 6px 18px rgba(0,0,0,0.12)}
+  55%{box-shadow:0 22px 56px rgba(255,210,120,0.22), 0 8px 22px rgba(0,0,0,0.14)}
+ 100%{box-shadow:0 12px 28px rgba(0,0,0,0.12)}
+}
+.disco .cake{
+  animation: cakeDance 900ms cubic-bezier(.2,.9,.28,1) infinite, cakeGlow 900ms cubic-bezier(.2,.9,.28,1) infinite;
+  transform-origin: center bottom;
+  /* keep an enhanced shadow during disco; glow is animated via cakeGlow */
+}
+@keyframes candleSway{
+  0%{transform:translateY(0) rotate(0deg)}
+  50%{transform:translateY(-2px) rotate(6deg)}
+ 100%{transform:translateY(0) rotate(0deg)}
+}
+.disco .candle{ animation: candleSway 1200ms ease-in-out infinite; }
+
+
+/* Stickmen */
+.stickmen{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;display:flex;gap:22px;align-items:flex-end;z-index:1400}
+.stickman{width:64px;height:120px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.stickman .head{width:18px;height:18px;border-radius:50%;background:#111;margin-top:6px}
+.stickman .body{width:2px;height:44px;background:#111;margin-top:4px}
+.stickman .arm{position:absolute;width:28px;height:2px;background:#111;top:36px}
+.stickman .arm.left{left:6px;transform-origin:right center}
+.stickman .arm.right{right:6px;transform-origin:left center}
+.stickman .leg{position:absolute;width:2px;height:34px;background:#111;bottom:0}
+.stickman .leg.left{left:22px;transform-origin:top center}
+.stickman .leg.right{right:22px;transform-origin:top center}
+
+/* dance animation */
+.stickman.s1{animation:hop 1200ms ease-in-out infinite}
+.stickman.s2{animation:hop 1200ms ease-in-out 200ms infinite}
+.stickman.s3{animation:hop 1200ms ease-in-out 400ms infinite}
+.stickman.s1 .arm.left,.stickman.s2 .arm.left,.stickman.s3 .arm.left{animation:waveLeft 900ms ease-in-out infinite}
+.stickman.s1 .arm.right,.stickman.s2 .arm.right,.stickman.s3 .arm.right{animation:waveRight 900ms ease-in-out infinite}
+.stickman.s1 .leg.left,.stickman.s2 .leg.left,.stickman.s3 .leg.left{animation:kickLeft 900ms ease-in-out infinite}
+.stickman.s1 .leg.right,.stickman.s2 .leg.right,.stickman.s3 .leg.right{animation:kickRight 900ms ease-in-out infinite}
+
+@keyframes hop{
+  0%{transform:translateY(0)}
+  25%{transform:translateY(-6px)}
+  50%{transform:translateY(0)}
+  75%{transform:translateY(-4px)}
+  100%{transform:translateY(0)}
+}
+@keyframes waveLeft{0%{transform:rotate(-20deg)}50%{transform:rotate(10deg)}100%{transform:rotate(-20deg)}}
+@keyframes waveRight{0%{transform:rotate(20deg)}50%{transform:rotate(-10deg)}100%{transform:rotate(20deg)}}
+@keyframes kickLeft{0%{transform:rotate(6deg)}50%{transform:rotate(-18deg)}100%{transform:rotate(6deg)}}
+@keyframes kickRight{0%{transform:rotate(-6deg)}50%{transform:rotate(18deg)}100%{transform:rotate(-6deg)}}
+
+/* hide helper */
+.hidden{display:none}
+
 
 /* Mute button styling */
 #muteBtn{margin-left:10px}
