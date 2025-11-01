@@ -1,35 +1,27 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (gh-pages branch)
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure Pages
-        # bump to a newer configure-pages that avoids deprecated artifact actions
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact for GitHub Pages
-        # use the newer upload-pages-artifact if available (resolves internal upload-artifact v3 usage)
-        uses: actions/upload-pages-artifact@v2
+      - name: Deploy to gh-pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: .
+          branch: gh-pages # The branch the action should deploy to.
+          folder: .        # The folder to deploy (root of repo).
+          clean: true
+          commit-message: 'chore: deploy to gh-pages'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
-
-# Notes:
-# - This workflow runs on push to main and deploys the repository root to GitHub Pages.
-# - If you intend to publish a user site at https://ryle-css.github.io, make sure the repository
-#   name matches `ryle-css.github.io` (your repo currently has `https-` prefixed). If you prefer
-#   a project site, the site will be published at https://ryle-css.github.io/<repo-name>/.
+# This workflow publishes the repository contents to a `gh-pages` branch using
+# JamesIves/github-pages-deploy-action. After the first run, you may need to
+# visit the repository's Pages settings to select `gh-pages` as the publishing
+# source (or GitHub may switch automatically). This approach avoids the Pages
+# internal artifact/upload flow that caused failures for some repositories.
