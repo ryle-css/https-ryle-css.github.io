@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Happy Birthday 🎉</title>
+                <!-- Google font for signature -->
+                <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+                <link rel="stylesheet" href="style.css" />
+        <script src="main.js" defer></script>
+    </head>
+    <body>
+            <!-- Welcome modal: opens on page load -->
+            <div id="welcomeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+                <div class="modal-content">
+                    <h2 id="modalTitle">Open Your Surprise 🎁</h2>
+                    <p class="modal-text">Write a name (optional) and press Open to reveal the surprise.</p>
+                    <input id="nameInput" class="modal-input" type="text" placeholder="Who is it for?" aria-label="Recipient name" />
+                    <div class="modal-actions">
+                        <button id="openBtn" class="btn">Open Message</button>
+                        <button id="skipBtn" class="btn secondary">Skip</button>
+                    </div>
+                </div>
+            </div>
+
+            <main class="page">
+            <header class="hero">
+                    <h1 class="title">Happy Birthday!</h1>
+                    <p id="subtitle" class="subtitle">A colorful surprise just for you</p>
+            </header>
+
+            <section class="actions">
+                <button id="surpriseBtn" class="btn">Surprise Me 🎂</button>
+                <button id="resetBtn" class="btn secondary" aria-hidden="true">Reset</button>
+                <button id="muteBtn" class="btn secondary" aria-pressed="false" title="Mute / Unmute">🔊</button>
+            </section>
+
+            <section id="stage" class="stage" aria-live="polite">
+                <!-- Cake is hidden until the user clicks Surprise -->
+                <div id="cake" class="cake hidden" aria-hidden="true">
+                    <div class="plate"></div>
+                    <div class="layer bottom"></div>
+                    <div class="layer top"></div>
+                    <div class="frosting"></div>
+                    <div class="candles">
+                        <div class="candle" style="left:40%"></div>
+                        <div class="candle" style="left:60%"></div>
+                    </div>
+                </div>
+
+                <!-- Balloons -->
+                <div class="balloons hidden" id="balloons" aria-hidden="true">
+                    <div class="balloon b1"></div>
+                    <div class="balloon b2"></div>
+                    <div class="balloon b3"></div>
+                    <div class="balloon b4"></div>
+                    <div class="balloon b5"></div>
+                </div>
+
+                <!-- Confetti canvas -->
+                <canvas id="confetti" class="confetti"></canvas>
+            </section>
+
+                        <!-- Letter / Envelope (hidden initially) -->
+                        <div id="letterWrap" class="letter-wrap hidden" aria-hidden="true">
+                            <div class="envelope" id="envelope">
+                                <div class="flap"></div>
+                                <div class="body"></div>
+                                <div class="letter" id="letter">
+                                    <div class="letter-inner">
+                                        <p class="wish-line">I hope all your birthday</p>
+                                        <p class="wish-line">dreams &amp; wishes come true.</p>
+                                        <h2 class="wish-sign">Happy Birthday!</h2>
+                                        <div class="letter-actions">
+                                            <button id="openCakeBtn" class="btn">Open Cake 🎂</button>
+                                            <button id="closeLetterBtn" class="btn secondary">Close</button>
+                                            <button id="editLetterBtn" class="btn secondary">Edit</button>
+                                            <button id="saveLetterBtn" class="btn secondary hidden">Save</button>
+                                        </div>
+                                        <textarea id="letterText" class="letter-text hidden" aria-label="Edit letter message">I hope all your birthday\ndreams & wishes come true.\nHappy Birthday!</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+            <footer class="foot">Made by Ryle — Don't share this link to anyone wihtout the permision of the owner! <br> And don't forget to THANK RYLE! if he send this to you! HEHEHE
+            </footer>
+        </main>
+    </body>
+</html>
